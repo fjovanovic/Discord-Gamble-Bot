@@ -5,10 +5,9 @@ from discord.ext import commands
 from replit import db
 from keep_alive import keep_alive
 import random
-import numpy as np
 
 client = commands.Bot(command_prefix='!')
-playing = False
+bj_players = []
 
 
 def add_money(user, amount):
@@ -24,7 +23,6 @@ def sub_money(user, amount):
 @client.event
 async def on_ready():
     print(f'You have logged in as {client.user}')
-    playing = False
 
 
 @client.command()
@@ -42,6 +40,9 @@ async def coinflip(ctx, *args):
     try:
         amount = float(args[0])
         balance = float(db[user_id])
+        if amount > 500 or amount < 10:
+            await ctx.send('Wrong call. Minimum bet is 10 and maximum bet is 500')
+            return
         if amount > balance:
             await ctx.send('Wrong call. Make sure to put amount that is larger than your balance.')
             return
@@ -65,7 +66,7 @@ async def coinflip(ctx, *args):
     if result:
         my_embed.colour = discord.Colour.green() 
     
-    my_embed.set_author(name='Coinflip', icon_url=image)
+    my_embed.set_author(name='Coinflip ' + user_name, icon_url=image)
     if result:
         my_embed.add_field(name='You won', value=db['currency'] + str(round(amount)) + ' has been added to your balance', inline=False)
         add_money(user_id, amount)
@@ -94,6 +95,9 @@ async def dice(ctx, *args):
     try:
         amount = float(args[0])
         balance = float(db[user_id])
+        if amount > 500 or amount < 10:
+            await ctx.send('Wrong call. Minimum bet is 10 and maximum bet is 500')
+            return
         if amount > balance:
             await ctx.send('Wrong call. Make sure to put amount that is larger than your balance.')
             return
@@ -117,7 +121,7 @@ async def dice(ctx, *args):
             colour = discord.Colour.red() 
         )
         
-        my_embed.set_author(name='Dice', icon_url=image)
+        my_embed.set_author(name='Dice ' + user_name, icon_url=image)
         my_embed.add_field(name='You lost', value=db['currency'] + str(round(amount)) + ' has been removed from your balance', inline=False)
         sub_money(user_id, amount)
         my_embed.add_field(name='Dice number', value=str(answer_number), inline=False)
@@ -137,7 +141,7 @@ async def dice(ctx, *args):
             colour = discord.Colour.green() 
         )
         
-        my_embed.set_author(name='Dice', icon_url=image)
+        my_embed.set_author(name='Dice ' + user_name, icon_url=image)
         my_embed.add_field(name='You won', value=db['currency'] + str(round(real_won_value)) + ' has been added to your balance', inline=False)
         sub_money(user_id, amount)
         add_money(user_id, won_value)
@@ -163,6 +167,9 @@ async def roulette(ctx, *args):
     try:
         amount = float(args[0])
         balance = float(db[user_id])
+        if amount > 500 or amount < 10:
+            await ctx.send('Wrong call. Minimum bet is 10 and maximum bet is 500')
+            return
         if amount > balance:
             await ctx.send('Wrong call. Make sure to put amount that is larger than your balance.')
             return
@@ -191,7 +198,7 @@ async def roulette(ctx, *args):
             colour = discord.Colour.red() 
         )
         
-        my_embed.set_author(name='Roulette', icon_url=image)
+        my_embed.set_author(name='Roulette ' + user_name, icon_url=image)
         if result:
             my_embed.colour = discord.Colour.green()
             won_value = 2 * amount
@@ -224,7 +231,7 @@ async def roulette(ctx, *args):
                 colour = discord.Colour.red() 
             )
             
-            my_embed.set_author(name='Roulette', icon_url=image)
+            my_embed.set_author(name='Roulette ' + user_name, icon_url=image)
             my_embed.add_field(name='You lost', value=db['currency'] + str(round(amount)) + ' has been removed from your balance', inline=False)
             sub_money(user_id, amount)
             my_embed.add_field(name='Ball landed in', value=str(answer_number) + ' ' + color, inline=False)
@@ -238,7 +245,7 @@ async def roulette(ctx, *args):
                 colour = discord.Colour.green() 
             )
             
-            my_embed.set_author(name='Roulette', icon_url=image)
+            my_embed.set_author(name='Roulette ' + user_name, icon_url=image)
             my_embed.add_field(name='You won', value=db['currency'] + str(round(won_value)) + ' has been added to your balance', inline=False)
             sub_money(user_id, amount)
             add_money(user_id, won_value)
@@ -251,14 +258,18 @@ async def roulette(ctx, *args):
 
 @client.command() 
 async def bj(ctx, *args):
-    #if playing:
-    #    return
+    user_id = str(ctx.author.id)
+    if user_id in bj_players:
+        await ctx.send('You are already playing.')
+        return
+
+    bj_players.append(user_id)
+
     if len(args) != 1:
         await ctx.send('Wrong call. Make sure to use the right call. (!bj amount, eg. !bj 20)')
         return
     
     image = 'https://i.postimg.cc/N0GZH0Bf/bj.png'
-    user_id = str(ctx.author.id)
     user_name = str(ctx.author)
     if user_id not in db.keys():
         await ctx.send('Your balance is 0. Please make a deposit.')
@@ -266,14 +277,15 @@ async def bj(ctx, *args):
     try:
         amount = float(args[0])
         balance = float(db[user_id])
+        if amount > 500 or amount < 10:
+            await ctx.send('Wrong call. Minimum bet is 10 and maximum bet is 500')
+            return
         if amount > balance:
             await ctx.send('Wrong call. Make sure to put amount that is larger than your balance.')
             return
     except:
         await ctx.send('Wrong call. Make sure to use the right call. (!bj amount, eg. !bj 20)')
         return
-
-    playing = True
 
     p_cards = []
     p_cards_str = ''
@@ -347,12 +359,12 @@ async def bj(ctx, *args):
             message = await client.wait_for('message', check=lambda m: m.author == ctx.author and m.channel == ctx.channel, timeout=30.0)
         except asyncio.TimeoutError:
             await ctx.send(user_name + ' 1 minute passed, you lost this bet.')
-            sub_money(user_id, amount)           
+            sub_money(user_id, amount)  
+            bj_players.remove(user_id)         
             return
         
         else:
             if message.content.lower() == 'hit':
-                #await ctx.send('hit')
                 index = random.randrange(0, i)
                 p_cards.append(cards[index])
                 p_cards_str += str(cards[index]) + ' '
@@ -373,8 +385,6 @@ async def bj(ctx, *args):
 
                 await ctx.send(embed=my_embed)
 
-                #print('Player cards: ' + str(p_cards))
-                #print('Player_count: ' + str(p_count))
                 if p_count > 21:
                     not_bust = False
                     my_embed = discord.Embed(
@@ -389,10 +399,9 @@ async def bj(ctx, *args):
                     my_embed.add_field(name='Your current balance', value=db['currency'] + str(round(db[user_id])), inline=False)
 
                     await ctx.send(embed=my_embed)
-                    #playing = False
+                    bj_players.remove(user_id)
                     return
             elif message.content.lower() == 'stand':
-                #await ctx.send('stand')
                 while d_count < 17:
                     index = random.randrange(0, i)
                     d_cards.append(cards[index])
@@ -404,22 +413,20 @@ async def bj(ctx, *args):
                     cards.remove(d_cards[d_i - 1])
                     i -= 1
                     d_i += 1
-                    #print('Dealer cards: ' + str(d_cards))
-                    #print('Dealer count: ' + str(d_count))
                 if d_count > 21:
                     my_embed = discord.Embed(
                         colour = discord.Colour.green() 
                     )
             
                     my_embed.set_author(name='Blackjack ' + user_name, icon_url=image)
-                    my_embed.add_field(name='You won(Bust)', value=db['currency'] + str(round(amount)) + ' has been added to your balance', inline=False)
+                    my_embed.add_field(name='You won(Dealer bust)', value=db['currency'] + str(round(amount)) + ' has been added to your balance', inline=False)
                     add_money(user_id, amount)
                     my_embed.add_field(name='Your hand', value=p_cards_str + '\nCount: ' + str(p_count), inline=True)
                     my_embed.add_field(name='Dealer hand', value=d_cards_str + '\nCount: ' + str(d_count), inline=True)
                     my_embed.add_field(name='Your current balance', value=db['currency'] + str(round(db[user_id])), inline=False)
 
                     await ctx.send(embed=my_embed)
-                    #playing = False
+                    bj_players.remove(user_id)
                     return
                 elif d_count > p_count:
                     my_embed = discord.Embed(
@@ -434,7 +441,7 @@ async def bj(ctx, *args):
                     my_embed.add_field(name='Your current balance', value=db['currency'] + str(round(db[user_id])), inline=False)
 
                     await ctx.send(embed=my_embed)
-                    #playing = False
+                    bj_players.remove(user_id)
                     return
                 elif d_count < p_count:
                     my_embed = discord.Embed(
@@ -449,11 +456,11 @@ async def bj(ctx, *args):
                     my_embed.add_field(name='Your current balance', value=db['currency'] + str(round(db[user_id])), inline=False)
 
                     await ctx.send(embed=my_embed)
-                    #playing = False
+                    bj_players.remove(user_id)
                     return
                 elif d_count == p_count:
                     my_embed = discord.Embed(
-                        colour = discord.Colour.grey() 
+                        colour = discord.Colour.greyple() 
                     )
             
                     my_embed.set_author(name='Blackjack ' + user_name, icon_url=image)
@@ -463,7 +470,7 @@ async def bj(ctx, *args):
                     my_embed.add_field(name='Your current balance', value=db['currency'] + str(round(db[user_id])), inline=False)
 
                     await ctx.send(embed=my_embed)
-                    #playing = False
+                    bj_players.remove(user_id)
                     return
 
             else:
@@ -486,6 +493,9 @@ async def crash(ctx, *args):
     try:
         amount = float(args[0])
         balance = float(db[user_id])
+        if amount > 500 or amount < 10:
+            await ctx.send('Wrong call. Minimum bet is 10 and maximum bet is 500')
+            return
         if amount > balance:
             await ctx.send('Wrong call. Make sure to put amount that is larger than your balance.')
             return
@@ -502,30 +512,27 @@ async def crash(ctx, *args):
         await ctx.send('Wrong call. Make sure to use the right call. (!crash amount cashout[1.01,99], eg. !crash 10.2 1.20')
         return 
 
-    list0r = list0r = np.repeat([0], 60)
-    list1 = np.arange(1.0, 1.25, 0.01)
-    list1r = np.repeat(list(list1), 100)
-    list2 = np.arange(1.25, 1.50, 0.01)
-    list2r = np.repeat(list(list2), 7)
-    list3 = np.arange(1.5, 2, 0.01)
-    list3r = np.repeat(list(list3), 3)
-    list4 = np.arange(2.0, 5.0, 0.01)
-    list4r = np.repeat(list(list4), 2)
-    list5r = np.arange(5.0, 30.0, 0.1)
+    multipliers = []
 
-    final_list = []
-    final_list.extend(list0r)
-    final_list.extend(list1r)
-    final_list.extend(list2r)
-    final_list.extend(list3r)
-    final_list.extend(list4r)
-    final_list.extend(list5r)
+    def float_range(start, stop, step, copies):
+        while start < stop:
+            for i in range (0, copies):
+                num = start
+                multipliers.append(round(num, 2))
+                num += step
+            start += step
 
-    length = len(final_list)
-    index = random.randrange(0, length)
-    random.shuffle(final_list)
-
-    multi = final_list[index]
+    float_range(1.00, 1.01, 0.01, 350)
+    float_range(1.01, 1.10, 0.01, 320)
+    float_range(1.10, 1.25, 0.01, 300)
+    float_range(1.25, 1.50, 0.01, 5)
+    float_range(1.50, 2.00, 0.01, 2)
+    float_range(2.0, 30.01, 0.01, 1)
+    
+    length = len(multipliers) - 1
+    i = random.randint(0, length)
+    random.shuffle(multipliers)
+    multi = multipliers[i]
 
     if multi >= cashout:
         won_value = amount * cashout - amount 
@@ -533,7 +540,7 @@ async def crash(ctx, *args):
             colour = discord.Colour.green() 
         )
         
-        my_embed.set_author(name='Crash', icon_url=image)
+        my_embed.set_author(name='Crash ' + str(user_name), icon_url=image)
         my_embed.add_field(name='You won', value=db['currency'] + str(round(won_value)) + ' has been added to your balance', inline=False)
         add_money(user_id, won_value)
         my_embed.add_field(name='Multi', value=str(round(multi,2)), inline=False)
@@ -577,6 +584,7 @@ async def gambleinfo(ctx, *args):
     await ctx.send(embed=my_embed)
     return
 
+
 @client.command()
 @commands.has_permissions(administrator=True)
 async def admincommands(ctx, *args):
@@ -585,8 +593,8 @@ async def admincommands(ctx, *args):
         return    
 
     image = 'https://i.postimg.cc/Sx6gVbD2/all-other.png'
-    response_admin_commands = '!setcurrency emoji\n' + '!removeold\n' + '!addmoney amount @username\n' + '!submoney amount @username\n' + '!removebal @username'
-    response_admin_examples = '!setcurrency :dollar\n' + '!removeold\n' + '!addmoney 100 @Apex\n' + '!submoney 100 @Apex\n' + '!removebal @Apex'
+    response_admin_commands = '!setcurrency emoji\n' + '!removeold\n' + '!addmoney amount @username\n' + '!submoney amount @username\n' + '!removebal @username\n' + '!playerbal @username'
+    response_admin_examples = '!setcurrency :dollar\n' + '!removeold\n' + '!addmoney 100 @Apex\n' + '!submoney 100 @Apex\n' + '!removebal @Apex\n' + '!playerbal @Apex'
 
     my_embed = discord.Embed(
         colour = discord.Colour.gold() 
@@ -613,7 +621,9 @@ async def removeold(ctx, *args):
         await ctx.send('Wrong call.Make sure to use the right call. (!removeold)')
         return
     for i in db.keys():
-        if db[i] <= 0.5:
+        if i == 'currency':
+            pass
+        elif float(db[i]) < 1:
             del db[i]
 
 
@@ -633,8 +643,11 @@ async def addmoney(ctx, *args):
         return
 
     image = 'https://i.postimg.cc/Sx6gVbD2/all-other.png'
-    n = len(args[1])
-    user_id = str(args[1][3:n-1])
+    user_id = ''
+    for s in args[1]:
+        if s.isdigit():
+            user_id += str(s)
+    user_name = await client.fetch_user(int(user_id))
     if user_id in db.keys():
         previous_amount = db[user_id] 
     else:
@@ -645,7 +658,7 @@ async def addmoney(ctx, *args):
         colour = discord.Colour.gold() 
     )
     
-    my_embed.set_author(name='Success', icon_url=image)
+    my_embed.set_author(name='Success ' + str(user_name), icon_url=image)
     my_embed.add_field(name='Previous balance', value=db['currency'] + str(round(previous_amount)), inline=False)
     my_embed.add_field(name='Your current balance', value=db['currency'] + str(round(db[user_id])), inline=False)
 
@@ -654,6 +667,7 @@ async def addmoney(ctx, *args):
 
 
 @client.command()
+@commands.has_permissions(administrator=True)
 async def submoney(ctx, *args):
     if len(args) != 2:
         await ctx.send('Wrong call. Make sure to use the right call. (!submoney amount @username')
@@ -668,8 +682,11 @@ async def submoney(ctx, *args):
         return
 
     image = 'https://i.postimg.cc/Sx6gVbD2/all-other.png'
-    n = len(args[1])
-    user_id = str(args[1][3:n-1])
+    user_id = ''
+    for s in args[1]:
+        if s.isdigit():
+            user_id += str(s)
+    user_name = await client.fetch_user(int(user_id))
     if user_id in db.keys():
         previous_amount = db[user_id] 
         db[user_id] = previous_amount - amount
@@ -683,7 +700,7 @@ async def submoney(ctx, *args):
         colour = discord.Colour.gold() 
     )
     
-    my_embed.set_author(name='Success', icon_url=image)
+    my_embed.set_author(name='Success ' + str(user_name), icon_url=image)
     my_embed.add_field(name='Previous balance', value=db['currency'] + str(round(previous_amount)), inline=False)
     my_embed.add_field(name='Your current balance', value=db['currency'] + str(round(db[user_id])), inline=False)
 
@@ -717,14 +734,18 @@ async def bal(ctx, *args):
 
 
 @client.command()
+@commands.has_permissions(administrator=True)
 async def removebal(ctx, *args):
     if len(args) != 1:
         await ctx.send('Wrong call. Make sure to use the right call. (!removebal @username')
         return
 
     image = 'https://i.postimg.cc/Sx6gVbD2/all-other.png'
-    n = len(args[0])
-    user_id = str(args[0][3:n-1])
+    user_id = ''
+    for s in args[0]:
+        if s.isdigit():
+            user_id += str(s)
+    user_name = await client.fetch_user(int(user_id))
     if user_id in db.keys():
         previous_amount = db[user_id]
     else:
@@ -736,9 +757,72 @@ async def removebal(ctx, *args):
         colour = discord.Colour.gold() 
     )
     
-    my_embed.set_author(name='Success', icon_url=image)
+    my_embed.set_author(name='Success ' + str(user_name), icon_url=image)
     my_embed.add_field(name='Previous balance', value=db['currency'] + str(round(previous_amount)), inline=False)
     my_embed.add_field(name='Your current balance', value=db['currency'] + str(round(db[user_id])), inline=False)
+
+    await ctx.send(embed=my_embed)
+    return
+
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def list(ctx, *args):
+    for i in db.keys():
+        print(str(i) + ' ' + str(db[i]))
+    return
+
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def playerbal(ctx, *args):
+    if len(args) != 1:
+        await ctx.send('Wrong call. Make sure to use the right call. (!playerbal @username')
+        return
+
+    image = 'https://i.postimg.cc/Sx6gVbD2/all-other.png'
+    user_id = ''
+    for s in args[0]:
+        if s.isdigit():
+            user_id += str(s)
+    user_name = await client.fetch_user(int(user_id))
+    if user_id not in db.keys():
+        balance = 0
+    else:
+        balance = db[user_id]
+    try:
+        user_name = await client.fetch_user(user_id)
+    except:
+        await ctx.send('Couldn\'t find user.')
+        return
+
+    my_embed = discord.Embed(
+        colour = discord.Colour.gold() 
+    )
+    
+    my_embed.set_author(name=user_name, icon_url=image)
+    my_embed.add_field(name='Your current balance', value=db['currency'] + str(round(balance)), inline=False)
+
+    await ctx.send(embed=my_embed)
+    return
+
+
+@client.command()
+@commands.has_permissions(administrator=True)
+async def custom(ctx, *args):
+    l = len(args)
+    i = 0
+    mes = ''
+    while l > 0:
+        mes += str(args[i]) + ' '
+        print(mes)
+        l -= 1
+        i += 1
+    my_embed = discord.Embed(
+        colour = discord.Colour.gold() 
+    )
+    
+    my_embed.add_field(name='Announcement', value=mes, inline=False)
 
     await ctx.send(embed=my_embed)
     return
