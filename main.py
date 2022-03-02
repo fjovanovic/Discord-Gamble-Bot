@@ -6,7 +6,7 @@ from replit import db
 from keep_alive import keep_alive
 import random
 
-client = commands.Bot(command_prefix='!')
+client = commands.Bot(command_prefix='$')
 bj_players = []
 
 
@@ -28,7 +28,7 @@ async def on_ready():
 @client.command()
 async def coinflip(ctx, *args):
     if len(args) != 2:
-        await ctx.send('Wrong call. Make sure you use the right call. (!coinflip amount head/tails, eg. !coinflip 10.2 tails)')
+        await ctx.send('Wrong call. Make sure you use the right call. ($coinflip amount head/tails, eg. $coinflip 10.2 tails)')
         return
 
     image = 'https://i.postimg.cc/NfxGwWzm/coinflip.png'
@@ -47,11 +47,11 @@ async def coinflip(ctx, *args):
             await ctx.send('Wrong call. Make sure to put amount that is larger than your balance.')
             return
     except:
-        await ctx.send('Wrong call. Make sure you use the right call. (!coinflip amount head/tails, eg. !coinflip 10.2 tails)')
+        await ctx.send('Wrong call. Make sure you use the right call. ($coinflip amount head/tails, eg. $coinflip 10.2 tails)')
         return
     bet = args[1]
     if bet != 'head' and bet != 'tails':
-        await ctx.send('Wrong call. Make sure you use the right call. (!coinflip amount head/tails, eg. !coinflip 10.2 tails)')
+        await ctx.send('Wrong call. Make sure you use the right call. ($coinflip amount head/tails, eg. $coinflip 10.2 tails)')
         return
 
     answer = random.choice(['head', 'tails'])
@@ -83,7 +83,7 @@ async def coinflip(ctx, *args):
 @client.command()
 async def dice(ctx, *args):
     if len(args) != 2:
-        await ctx.send('Wrong call. Make sure you use the right call. (!dice amount num[2,98], eg. !dice 10.2 45)')
+        await ctx.send('Wrong call. Make sure you use the right call. ($dice amount num[2,98], eg. $dice 10.2 45)')
         return
 
     image = 'https://i.postimg.cc/cJvdw64B/dice.png'
@@ -102,7 +102,7 @@ async def dice(ctx, *args):
             await ctx.send('Wrong call. Make sure to put amount that is larger than your balance.')
             return
     except:
-        await ctx.send('Wrong call. Make sure you use the right call. (!dice amount num[2,98], eg. !dice 10.2 45)')
+        await ctx.send('Wrong call. Make sure you use the right call. ($dice amount num[2,98], eg. $dice 10.2 45)')
         return
 
     try:
@@ -111,7 +111,7 @@ async def dice(ctx, *args):
             await ctx.send('Wrong call. Make sure to choose number between 2 and 98.')
             return
     except:
-        await ctx.send('Wrong call. Make sure you use the right call. (!dice amount num[2,98], eg. !dice 10.2 45)')
+        await ctx.send('Wrong call. Make sure you use the right call. ($dice amount num[2,98], eg. $dice 10.2 45)')
         return
 
     answer_number = round(random.uniform(0.01, 99.99), 2)
@@ -155,7 +155,7 @@ async def dice(ctx, *args):
 @client.command() 
 async def roulette(ctx, *args):
     if len(args) != 2:
-        await ctx.send('Wrong call. Make sure you use the right call. (!roulette amount black/red or !roulette amount number[0,36], eg. !roulette 10.2 black/red) or (!roulette 10.2 31)')
+        await ctx.send('Wrong call. Make sure you use the right call. ($roulette amount black/red or $roulette amount number[0,36], eg. $roulette 10.2 black/red) or ($roulette 10.2 31)')
         return
     
     image = 'https://i.postimg.cc/bYQKQ80n/Item-Sprites-5.png'
@@ -174,7 +174,7 @@ async def roulette(ctx, *args):
             await ctx.send('Wrong call. Make sure to put amount that is larger than your balance.')
             return
     except:
-        await ctx.send('Wrong call. Make sure you use the right call. (!roulette amount black/red or !roulette amount number[0,36], eg. !roulette 10.2 black/red) or (!roulette 10.2 31)')
+        await ctx.send('Wrong call. Make sure you use the right call. ($roulette amount black/red or $roulette amount number[0,36], eg. $roulette 10.2 black/red) or ($roulette 10.2 31)')
         return
 
     answer_number = random.randrange(0, 37)
@@ -216,7 +216,7 @@ async def roulette(ctx, *args):
         try:
             bet = int(args[1])
         except:
-            await ctx.send('Wrond call. Make sure to put number in range (0,36). (!roulette 10 34)')
+            await ctx.send('Wrond call. Make sure to put number in range (0,36). ($roulette 10 34)')
             return
 
         if answer_number == 0:
@@ -266,7 +266,7 @@ async def bj(ctx, *args):
     bj_players.append(user_id)
 
     if len(args) != 1:
-        await ctx.send('Wrong call. Make sure to use the right call. (!bj amount, eg. !bj 20)')
+        await ctx.send('Wrong call. Make sure to use the right call. ($bj amount, eg. $bj 20)')
         return
     
     image = 'https://i.postimg.cc/N0GZH0Bf/bj.png'
@@ -284,7 +284,7 @@ async def bj(ctx, *args):
             await ctx.send('Wrong call. Make sure to put amount that is larger than your balance.')
             return
     except:
-        await ctx.send('Wrong call. Make sure to use the right call. (!bj amount, eg. !bj 20)')
+        await ctx.send('Wrong call. Make sure to use the right call. ($bj amount, eg. $bj 20)')
         return
 
     p_cards = []
@@ -481,7 +481,7 @@ async def bj(ctx, *args):
 @client.command()
 async def crash(ctx, *args):
     if len(args) != 2:
-        await ctx.send('Wrong call. Make sure to use the right call. (!crash amount cashout[1.01,99], eg. !crash 10.2 1.20')
+        await ctx.send('Wrong call. Make sure to use the right call. ($crash amount cashout[1.01,99], eg. $crash 10.2 1.20')
         return      
     
     image = 'https://i.postimg.cc/SNmqVgxs/crash.png'
@@ -500,16 +500,16 @@ async def crash(ctx, *args):
             await ctx.send('Wrong call. Make sure to put amount that is larger than your balance.')
             return
     except:
-        await ctx.send('Wrong call. Make sure to use the right call. (!crash amount cashout[1.01,99], eg. !crash 10.2 1.20')
+        await ctx.send('Wrong call. Make sure to use the right call. ($crash amount cashout[1.01,99], eg. $crash 10.2 1.20')
         return
 
     try:
         cashout = float(args[1])
         if cashout < 1.01 or cashout > 99.0:
-            await ctx.send('Wrong call. Make sure to use the right call. (!crash amount cashout[1.01,99], eg. !crash 10.2 1.20')
+            await ctx.send('Wrong call. Make sure to use the right call. ($crash amount cashout[1.01,99], eg. $crash 10.2 1.20')
             return 
     except:
-        await ctx.send('Wrong call. Make sure to use the right call. (!crash amount cashout[1.01,99], eg. !crash 10.2 1.20')
+        await ctx.send('Wrong call. Make sure to use the right call. ($crash amount cashout[1.01,99], eg. $crash 10.2 1.20')
         return 
 
     multipliers = []
@@ -566,12 +566,12 @@ async def crash(ctx, *args):
 @client.command()
 async def gambleinfo(ctx, *args):
     if len(args) != 0:
-        await ctx.send('Wrong call. Make sure to call info by !gambleinfo')
+        await ctx.send('Wrong call. Make sure to call info by $gambleinfo')
         return 
     
     image = 'https://i.postimg.cc/Sx6gVbD2/all-other.png'
-    response_commands = '!coinflip amount head/tails\n' + '!dice amount num\n' + '!roulette amount black/red\n' + '!roulette amount num\n' + '!bj amount\n' + '!crash amount cashout' + '!bal\n'
-    response_examples = '!coinflip 10 head\n' + '!dice 100 30\n' + '!roulette 100 black\n' + '!roulette 10 34\n' + '!bj 100\n' + '!crash 10.2 1.3' + '!bal\n'
+    response_commands = '$coinflip amount head/tails\n' + '$dice amount num\n' + '$roulette amount black/red\n' + '$roulette amount num\n' + '$bj amount\n' + '$crash amount cashout' + '$bal\n'
+    response_examples = '$coinflip 10 head\n' + '$dice 100 30\n' + '$roulette 100 black\n' + '$roulette 10 34\n' + '$bj 100\n' + '$crash 10.2 1.3' + '$bal\n'
 
     my_embed = discord.Embed(
         colour = discord.Colour.gold() 
@@ -589,12 +589,12 @@ async def gambleinfo(ctx, *args):
 @commands.has_permissions(administrator=True)
 async def admincommands(ctx, *args):
     if len(args) != 0:
-        await ctx.send('Wrong call. Make sure to call info by !admincommands')
+        await ctx.send('Wrong call. Make sure to call info by $admincommands')
         return    
 
     image = 'https://i.postimg.cc/Sx6gVbD2/all-other.png'
-    response_admin_commands = '!setcurrency emoji\n' + '!removeold\n' + '!addmoney amount @username\n' + '!submoney amount @username\n' + '!removebal @username\n' + '!playerbal @username'
-    response_admin_examples = '!setcurrency :dollar\n' + '!removeold\n' + '!addmoney 100 @Apex\n' + '!submoney 100 @Apex\n' + '!removebal @Apex\n' + '!playerbal @Apex'
+    response_admin_commands = '$setcurrency emoji\n' + '$removeold\n' + '$addmoney amount @username\n' + '$submoney amount @username\n' + '$removebal @username\n' + '$playerbal @username'
+    response_admin_examples = '$setcurrency :dollar\n' + '$removeold\n' + '$addmoney 100 @Apex\n' + '$submoney 100 @Apex\n' + '$removebal @Apex\n' + '$playerbal @Apex'
 
     my_embed = discord.Embed(
         colour = discord.Colour.gold() 
@@ -618,7 +618,7 @@ async def setcurrency(ctx, *args):
 @commands.has_permissions(administrator=True)
 async def removeold(ctx, *args):
     if len(args) != 0:
-        await ctx.send('Wrong call.Make sure to use the right call. (!removeold)')
+        await ctx.send('Wrong call.Make sure to use the right call. ($removeold)')
         return
     for i in db.keys():
         if i == 'currency':
@@ -631,7 +631,7 @@ async def removeold(ctx, *args):
 @commands.has_permissions(administrator=True)
 async def addmoney(ctx, *args):
     if len(args) != 2:
-        await ctx.send('Wrong call. Make sure to use the right call. (!addmoney amount @username')
+        await ctx.send('Wrong call. Make sure to use the right call. ($addmoney amount @username')
         return
     try:
         amount = float(args[0])
@@ -670,7 +670,7 @@ async def addmoney(ctx, *args):
 @commands.has_permissions(administrator=True)
 async def submoney(ctx, *args):
     if len(args) != 2:
-        await ctx.send('Wrong call. Make sure to use the right call. (!submoney amount @username')
+        await ctx.send('Wrong call. Make sure to use the right call. ($submoney amount @username')
         return
     try:
         amount = float(args[0])
@@ -711,7 +711,7 @@ async def submoney(ctx, *args):
 @client.command()
 async def bal(ctx, *args):
     if len(args) != 0:
-        await ctx.send('Wrong call. Make sure to use command in the right way. (!bal)')
+        await ctx.send('Wrong call. Make sure to use command in the right way. ($bal)')
         return
 
     image = 'https://i.postimg.cc/Sx6gVbD2/all-other.png'
@@ -737,7 +737,7 @@ async def bal(ctx, *args):
 @commands.has_permissions(administrator=True)
 async def removebal(ctx, *args):
     if len(args) != 1:
-        await ctx.send('Wrong call. Make sure to use the right call. (!removebal @username')
+        await ctx.send('Wrong call. Make sure to use the right call. ($removebal @username')
         return
 
     image = 'https://i.postimg.cc/Sx6gVbD2/all-other.png'
@@ -777,7 +777,7 @@ async def list(ctx, *args):
 @commands.has_permissions(administrator=True)
 async def playerbal(ctx, *args):
     if len(args) != 1:
-        await ctx.send('Wrong call. Make sure to use the right call. (!playerbal @username')
+        await ctx.send('Wrong call. Make sure to use the right call. ($playerbal @username')
         return
 
     image = 'https://i.postimg.cc/Sx6gVbD2/all-other.png'
